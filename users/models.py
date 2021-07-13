@@ -32,10 +32,9 @@ class User(AbstractUser):
         (CURRENCY_KRW, "KRW"),
     }
 
-    avatar = models.ImageField(upload_to ="avatars", blank = True)
-    gender = models.CharField(choices =GENDER_CHOICES, max_length=10, blank = True) #single line
-    #choices같은 form의 변화는 migrate 불필요
-    bio = models.TextField(blank = True)
+    avatar = models.ImageField(upload_to="avatars", blank=True)
+    gender = models.CharField(choices=GENDER_CHOICES, max_length=10, blank=True) #single line
+    bio = models.TextField(blank=True)
     birthday = models.DateField(null=True,blank=True)
     language = models.CharField(choices=LANGUAGE_CHOICES,max_length=6,blank=True)
     currency = models.CharField(choices=CURRENCY_CHOICES,max_length=3,blank=True)
