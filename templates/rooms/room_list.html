@@ -1,0 +1,53 @@
+{%extends "base.html"%} {% comment %}  #extend를 했기에 block 사용 가능
+                        블럭을 만드려면 base.html에서 먼저 만들어야 한다. {% endcomment %}
+
+
+{% block page_title %}
+    Home
+{% endblock page_title %}
+    
+
+
+{% block content %}
+    {{now}}
+    {% for room in rooms %}
+    <h3>
+        <a href="{% url  'rooms:detail' room.pk %}">{{room.name}} / ${{room.price}}</a>  {% comment %} 장고의 url tag 사용{% endcomment %}
+        {% comment %} <a href="/rooms/{{room.pk}}">{{room.name}} / ${{room.price}}</a> 장고의 url tag 미사용{% endcomment %}
+    </h3>
+    {% endfor %}
+
+    {% comment %} {% for room in page.object_list %} 
+    <h1>{{room.name}} / ${{room.price}}</h1>
+    {% endfor %} paginator와 수동시 이용 코드 {% endcomment %}
+
+
+    <h5>
+    {% comment %} {% if page is not 1 %}1 수동으로{% endcomment %} 
+    {% comment %} {% if page.has_previous %} (paginator 사용)  이 줄이 없으면 이전페이지가 없을때 에러 
+        <a href ="?page={{page.previous_page_number}}">Previous</a>
+    {% endif %} {% endcomment %}
+    {% if page_obj.has_previous %} 
+        <a href ="?page={{page_obj.previous_page_number}}">Previous</a>
+    {% endif %} 
+
+    Page  {{page_obj.number}} of {{page_obj.paginator.num_pages}}
+    
+    
+    {% if page_obj.has_next %} 
+        <a href ="?page={{page_obj.next_page_number}}">Next</a>
+    {% endif %} 
+    </h5>
+    {% comment %} Page  {{page.number}} of {{page.paginator.num_pages}} (paginator 사용){% endcomment %}
+    
+    {% comment %} {% if not page == page_count %} 수동으로 {% endcomment %}
+
+    {% comment %} {% if page.has_next %} (paginator 사용)이 줄이 없으면 다음페이지가 없을때 에러 
+        <a href ="?page={{page.next_page_number}}">Next</a>
+    {% endif %} {% endcomment %}
+    
+    
+    
+ 
+{% endblock  %}
+

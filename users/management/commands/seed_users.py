@@ -1,12 +1,11 @@
 from django.core.management.base import BaseCommand
 from django_seed import Seed
-import random
 from users.models import User
 
 
 class Command(BaseCommand):
 
-    help = "This command creates amenities"
+    help = "This command creates many users"
 
     def add_arguments(self, parser):
         parser.add_argument(
