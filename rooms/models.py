@@ -63,7 +63,9 @@ class Room(core_models.TimeStampedModel):
     city = models.CharField(null=True, blank=True, max_length=80)
     price = models.IntegerField(null=True, blank=True)
     address = models.CharField(null=True, blank=True, max_length=140)
-    guests = models.IntegerField(null=True, blank=True)
+    guests = models.IntegerField(
+        null=True, blank=True, help_text="How many people will be staying?"
+    )
     beds = models.IntegerField(null=True, blank=True)
     bedrooms = models.IntegerField(null=True, blank=True)
     baths = models.IntegerField(null=True, blank=True)
