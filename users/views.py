@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect, reverse
 from django.urls import reverse_lazy
 from . import forms
 from django.contrib.auth import authenticate, login, logout
+from django.core.files.base import ContentFile
 
 
 class LoginView(FormView):
@@ -74,52 +75,122 @@ def github_login(request):
     )
 
 
-def github_callback(request):
-    client_id = os.environ.get("GH_ID")
-    client_secret = os.environ.get("GH_SECRET")
-    code = request.GET.get("code", None)
-    if code is not None:
-        result = requests.post(
-            f"https://github.com/login/oauth/access_token?client_id={client_id}&client_secret={client_secret}&code={code}",
-            headers={"Accept": "application/json"},
-        )
-        result_jason = result.json()
-        error = result_jason.get("error", None)
-        if error is not None:
-            return redirect(reverse("users:login"))
+class GithubException(Exception):
+    pass
 
-        else:
-            access_token = result_jason.get("access_token")
-            profile_request = requests.get(
-                "https://api.github.com/user",
-                headers={
-                    "Authorization": f"token {access_token}",
-                    "Accept": "application/json",
-                },
+
+def github_callback(request):
+    try:
+        client_id = os.environ.get("GH_ID")
+        client_secret = os.environ.get("GH_SECRET")
+        code = request.GET.get("code", None)
+        if code is not None:
+            token_request = requests.post(
+                f"https://github.com/login/oauth/access_token?client_id={client_id}&client_secret={client_secret}&code={code}",
+                headers={"Accept": "application/json"},
             )
-            profile_json = profile_request.json()
-            username = profile_json.get("login", None)
-            if username is not None:
-                name = profile_json.get("name")
-                email = profile_json.get("email")
-                bio = profile_json.get("bio")
-                user = models.User.objects.get(email=email)
-                if user is not None:
-                    return redirect(reverse("users:login"))
-                else:
-                    user = models.User.objects.create(
-                        username=email, first_name=name, bio=bio, email=email
-                    )
+            token_jason = token_request.json()
+            error = token_jason.get("error", None)
+            if error is not None:
+                raise GithubException()
+            else:
+                access_token = token_jason.get("access_token")
+                profile_request = requests.get(
+                    "https://api.github.com/user",
+                    headers={
+                        "Authorization": f"token {access_token}",
+                        "Accept": "application/json",
+                    },
+                )
+                profile_json = profile_request.json()
+                username = profile_json.get("login", None)
+                if username is not None:
+                    name = profile_json.get("name")
+                    email = profile_json.get("email")
+                    bio = profile_json.get("bio")
+                    try:
+                        user = models.User.objects.get(email=email)
+                        if user.login_method != models.User.LOGIN_GITHUB:
+                            raise GithubException()
+                    except models.User.DoesNotExist:
+                        user = models.User.objects.create(
+                            email=email,
+                            first_name=name,
+                            username=email,
+                            bio=bio,
+                            login_method=models.User.LOGIN_GITHUB,
+                            email_confirmed=True,
+                        )
+                        user.set_unusable_password()
+                        user.save()
                     login(request, user)
                     return redirect(reverse("core:home"))
-            else:
-                return redirect(reverse("users:login"))
-    else:
+                else:
+                    raise GithubException()
+        else:
+            raise GithubException()
+    except GithubException:
+        return redirect(reverse("users:login"))
+
+
+def kakao_login(request):
+    REST_API_KEY = os.environ.get("KAKAO_ID")
+    REDIRECT_URI = "http://127.0.0.1:8000/users/login/kakao/callback"
+    return redirect(
+        f"https://kauth.kakao.com/oauth/authorize?client_id={REST_API_KEY}&redirect_uri={REDIRECT_URI}&response_type=code"
+    )
+
+
+class KakaoException(Exception):
+    pass
+
+
+def kakao_callback(request):
+    try:
+        code = request.GET.get("code")
+        client_id = os.environ.get("KAKAO_ID")
+        REDIRECT_URI = "http://127.0.0.1:8000/users/login/kakao/callback"
+        token_request = requests.get(
+            f"https://kauth.kakao.com/oauth/token?grant_type=authorization_code&client_id={client_id}&redirect_uri={REDIRECT_URI}&code={code}"
+        )
+        token_json = token_request.json()
+        error = token_json.get("error", None)
+        if error is not None:
+            raise KakaoException()
+        access_token = token_json.get("access_token")
+        profile_request = requests.get(
+            "https://kapi.kakao.com/v2/user/me",
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+        profile_json = profile_request.json()
+        email = profile_json.get("kakao_account").get("email")
+        if email is None:
+            raise KakaoException()
+        properties = profile_json.get("properties")
+        nickname = properties.get("nickname")
+        profile_image = (
+            profile_json.get("kakao_account").get("profile").get("profile_image_url")
+        )
+        try:
+            user = models.User.objects.get(email=email)
+            if user.login_method != models.User.LOGIN_KAKAO:
+                raise KakaoException()
+        except models.User.DoesNotExist:
+            user = models.User.objects.create(
+                email=email,
+                username=email,
+                first_name=nickname,
+                login_method=models.User.LOGIN_KAKAO,
+                email_verified=True,
+            )
+            user.set_unusable_password()
+            user.save()
+            if profile_image is not None:
+                photo_request = requests.get(profile_image)
+                user.avatar.save(
+                    f"{nickname}-avatar", ContentFile(photo_request.content)
+                )
+        login(request, user)
         return redirect(reverse("core:home"))
-
-
-# def login_view(request): FBV
-#     if request.method == "GET":
-#         pass
-#     elif request.method == "POST1":
-#         pass
+    except KakaoException:
+        return redirect(reverse("users:login"))
