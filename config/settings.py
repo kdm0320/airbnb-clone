@@ -135,7 +135,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "uploads")
 MEDIA_URL = "/media/"
 
 # Email Configuration
-EMAIL_HOST = ""
-EMAIL_PORT = ""
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_USE_TLS = True
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
 EMAIL_HOST_USER = os.environ.get("MAILGUN_USERNAME")  # 나중에 env 파일에 입력
 EMAIL_HOST_PASSWORD = os.environ.get("MAILGUN_PASSWORD")  # 나중에 env 파일에 입력
+EMAIL_FROM = "myemail@gmail.com"
