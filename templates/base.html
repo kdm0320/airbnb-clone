@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,12 +6,13 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel = "stylesheet" href="http://127.0.0.1:8000/static/css/styles.css">
     <title>
       {% block page_title %}{% endblock page_title %}Nbnb</title>
   </head>
 
   <body>
-    <header>
+    <header class="container" max-w-fu;;>
       {% include "partials/navigation.html" %}
       {% block search-bar %}
       <form method="get" action="{% url 'rooms:search' %}">

@@ -53,14 +53,17 @@ class User(AbstractUser):
     bio = models.TextField(blank=True)
     birthday = models.DateField(null=True, blank=True)
     language = models.CharField(
-        choices=LANGUAGE_CHOICES, max_length=6, blank=True, default=LANGUAGE_KOREAN
+        choices=LANGUAGE_CHOICES,
+        max_length=10,
     )
     currency = models.CharField(
-        choices=CURRENCY_CHOICES, max_length=3, blank=True, default=CURRENCY_KRW
+        choices=CURRENCY_CHOICES,
+        max_length=3,
+        blank=True,
     )
     superhost = models.BooleanField(default=False)
     email_verified = models.BooleanField(default=False)
-    email_secret = models.CharField(max_length=20, default="", blank=True)
+    email_secret = models.CharField(max_length=20, blank=True)
     login_method = models.CharField(
         max_length=50, choices=LOGIN_CHOICES, default=LOGIN_EMAIL
     )
