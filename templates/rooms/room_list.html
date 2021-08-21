@@ -9,35 +9,33 @@
 
 
 {% block content %}
-    {{now}}
-    {% for room in rooms %}
-    <h3>
-        <a href="{% url  'rooms:detail' room.pk %}">{{room.name}} / ${{room.price}}</a>  {% comment %} 장고의 url tag 사용{% endcomment %}
-        {% comment %} <a href="/rooms/{{room.pk}}">{{room.name}} / ${{room.price}}</a> 장고의 url tag 미사용{% endcomment %}
-    </h3>
-    {% endfor %}
 
-    {% comment %} {% for room in page.object_list %} 
-    <h1>{{room.name}} / ${{room.price}}</h1>
-    {% endfor %} paginator와 수동시 이용 코드 {% endcomment %}
+    <div class="container mx-auto pb-10">
+        <div class="container rounded-xl bg-gray-800 -mx-40 h-50vh mt-32 mb-24 bg-cover bg-center"></div>
+        <div class="flex flex-wrap -mx-40 mg-10">
+            {% for room in rooms %}
+                {% include 'partials/room_card.html' with room=room %}
+            {% endfor %}
+        </div>
+   
+        <div class="flex items-center justify-center mx-auto container">
+            {% if page_obj.has_previous %} 
+                <a href ="?page={{page_obj.previous_page_number}}" class="text-teal-500">
+                    <em class="fas fa-arrow-left fa-lg"></em>
+                </a>
+            {% endif %} 
+        
+            <span class="mx-3 font-medium text-lg">{{page_obj.number}} of {{page_obj.paginator.num_pages}}</span>
+            
+            {% if page_obj.has_next %} 
+                <a href ="?page={{page_obj.next_page_number}}" class="text-teal-500">
+                    <em class="fas fa-arrow-right fa-lg"></em>
+                </a>
+            {% endif %} 
+        </div>
+    </div>
 
-
-    <h5>
-    {% comment %} {% if page is not 1 %}1 수동으로{% endcomment %} 
-    {% comment %} {% if page.has_previous %} (paginator 사용)  이 줄이 없으면 이전페이지가 없을때 에러 
-        <a href ="?page={{page.previous_page_number}}">Previous</a>
-    {% endif %} {% endcomment %}
-    {% if page_obj.has_previous %} 
-        <a href ="?page={{page_obj.previous_page_number}}">Previous</a>
-    {% endif %} 
-
-    Page  {{page_obj.number}} of {{page_obj.paginator.num_pages}}
-    
-    
-    {% if page_obj.has_next %} 
-        <a href ="?page={{page_obj.next_page_number}}">Next</a>
-    {% endif %} 
-    </h5>
+   
     {% comment %} Page  {{page.number}} of {{page.paginator.num_pages}} (paginator 사용){% endcomment %}
     
     {% comment %} {% if not page == page_count %} 수동으로 {% endcomment %}
