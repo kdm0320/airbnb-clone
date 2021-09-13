@@ -89,7 +89,11 @@
         </div>
     </div>
     <div class="w-l/3">
-        <a href="{% url 'rooms:edit' room.pk %}" class="btn-link block">Edit Room</a>
+        
+        {% if room.host == user %}
+            <a href="{% url 'rooms:edit' room.pk %}" class="btn-link block">Edit Room</a>
+        {% endif %}
+            
     </div>
 </div>
 {% endblock %}
