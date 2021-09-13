@@ -144,3 +144,5 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = os.environ.get("MAILGUN_USERNAME")  # 나중에 env 파일에 입력
 EMAIL_HOST_PASSWORD = os.environ.get("MAILGUN_PASSWORD")  # 나중에 env 파일에 입력
 EMAIL_FROM = "myemail@gmail.com"
+
+LOGIN_URL = "/users/login"

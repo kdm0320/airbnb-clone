@@ -1,8 +1,13 @@
-from django.shortcuts import render
+from django.http.response import Http404
+from django.shortcuts import redirect, render
+from django.urls.base import reverse
 from django.views.generic import ListView, DetailView, View
 from . import models, forms
 from django.core.paginator import Paginator
 from django.views.generic.edit import UpdateView
+from users import mixins as user_mixins
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 
 class HomeView(ListView):
@@ -165,7 +170,7 @@ class SearchView(View):
 #     )
 
 
-class EditRoomView(UpdateView):
+class EditRoomView(user_mixins.LoggedInOnlyView, UpdateView):
     model = models.Room
     template_name = "rooms/room_edit.html"
     fields = (
@@ -187,3 +192,36 @@ class EditRoomView(UpdateView):
         "facilities",
         "house_rules",
     )
+
+    def get_object(self, queryset=None):
+        room = super().get_object(queryset=queryset)
+        if room.host.pk != self.request.user.pk:
+            raise Http404()
+        return room
+
+
+class RoomPhotosView(user_mixins.LoggedInOnlyView, DetailView):
+
+    model = models.Room
+    template_name = "rooms/room_photos.html"
+
+    def get_object(self, queryset=None):
+        room = super().get_object(queryset=queryset)
+        if room.host.pk != self.request.user.pk:
+            raise Http404()
+        return room
+
+
+@login_required
+def delete_photo(request, room_pk, photo_pk):
+    user = request.user
+    try:
+        room = models.Room.objects.get(pk=room_pk)
+        if room.host.pk != user.pk:
+            messages.error(request, "Can't delete that photo")
+        else:
+            models.Photo.objects.get(pk=photo_pk).delete()
+            messages.success(request, "Photo deleted")
+        return redirect(reverse("rooms:photos", kwargs={"pk": room_pk}))
+    except models.Room.DoesNotExist:
+        return redirect(reverse("core:home"))
