@@ -48,7 +48,7 @@ PROJECT_APPS = [
     "lists.apps.ListsConfig",
     "conversations.apps.ConversationsConfig",
 ]
-INSTALLED_APPS = DJAGO_APPS + PROJECT_APPS
+INSTALLED_APPS = DJAGO_APPS + PROJECT_APPS + THIRD_PARTY_APPS
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
