@@ -1,7 +1,8 @@
 import os
+import requests
+from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.views.generic.edit import UpdateView
-import requests
 from django.views.generic import FormView, DetailView
 from django.contrib.auth.views import PasswordChangeView
 from django.shortcuts import render, redirect
@@ -11,6 +12,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.core.files.base import ContentFile
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
+from django.utils import translation
+from config import settings
 
 
 class LoginView(mixins.LoggedOutOnlyView, FormView):
@@ -292,3 +295,12 @@ def switch_hosting(request):
     except KeyError:
         request.session["is_hosting"] = True
     return redirect(reverse("core:home"))
+
+
+def switch_lang(request):
+    lang = request.GET.get("lang", None)
+    if lang is not None:
+        translation.activate(lang)
+        response = HttpResponse(200)
+        response.set_cookie(settings.LANGUAGE_COOKIE_NAME, lang)
+    return response
