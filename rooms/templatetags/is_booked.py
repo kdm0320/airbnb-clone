@@ -1,9 +1,9 @@
 from calendar import month
+import datetime
 from django import template
 from reservations import models as reservation_models
 
 register = template.Library()
-import datetime
 
 
 @register.simple_tag
