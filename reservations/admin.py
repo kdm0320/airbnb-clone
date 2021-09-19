@@ -1,11 +1,12 @@
 from django.contrib import admin
-from. import models
+from . import models
+
 
 @admin.register(models.Reservation)
 class ReservationAdmin(admin.ModelAdmin):
 
     """Reservation Admin Definition"""
-    
+
     list_display = (
         "room",
         "status",
@@ -13,7 +14,12 @@ class ReservationAdmin(admin.ModelAdmin):
         "check_out",
         "guests",
         "in_progress",
-        "is_finished"
+        "is_finished",
     )
 
     list_filter = ("status",)
+
+
+@admin.register(models.BookedDay)
+class BookedDayAdmin(admin.ModelAdmin):
+    list_display = ("day", "reservation")
