@@ -33,4 +33,7 @@ def create(request, room, year, month, date):
 
 
 class ReservationDetailView(View):
-    pass
+    def get(self, pk):
+        reservation = models.Reservation.objects.get_or_none(pk=pk)
+        if not reservation:
+            return redirect(reverse("core:home"))
