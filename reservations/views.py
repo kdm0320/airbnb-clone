@@ -1,12 +1,11 @@
 import datetime
+from django.http.response import Http404
 from django.views.generic import View
 from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.urls.base import reverse
 from . import models
 from rooms import models as room_models
-
-import reservations
 
 
 class CreateError(Exception):
@@ -19,7 +18,7 @@ def create(request, room, year, month, date):
         room = room_models.Room.objects.get(pk=room)
         models.BookedDay.objects.get(day=date_obj, reservation__room=room)
         raise CreateError()
-    except (room_models.Room.DoesNotExist):
+    except (room_models.Room.DoesNotExist, CreateError):
         messages.error(request, "Can't Reserve That Room")
         return redirect(reverse("core:home"))
     except models.BookedDay.DoesNotExist:
@@ -29,11 +28,35 @@ def create(request, room, year, month, date):
             check_in=date_obj,
             check_out=date_obj + datetime.timedelta(days=1),
         )
-        return redirect(reverse("reservations:detaul", kwargs={"pk": reservation.pk}))
+        return redirect(reverse("reservations:detail", kwargs={"pk": reservation.pk}))
 
 
 class ReservationDetailView(View):
-    def get(self, pk):
+    def get(self, *args, **kwargs):
+        pk = kwargs.get("pk")
         reservation = models.Reservation.objects.get_or_none(pk=pk)
-        if not reservation:
-            return redirect(reverse("core:home"))
+        if not reservation or (
+            reservation.guests != self.request.user
+            and reservation.room.host != self.request.user
+        ):
+            raise Http404()
+
+        return render(
+            self.request, "reservations/detail.html", {"reservation": reservation}
+        )
+
+
+def edit_reservation(request, pk, verb):
+    reservation = models.Reservation.objects.get_or_none(pk=pk)
+    if not reservation or (
+        reservation.guests != request.user and reservation.room.host != request.user
+    ):
+        raise Http404()
+    if verb == "comfirm":
+        reservation.status = models.Reservation.STATUS_CONFIRMED
+    elif verb == "cancel":
+        reservation.status = models.Reservation.STATUS_CANCELED
+        models.BookedDay.objects.filter(reservation=reservation).delete()
+    reservation.save()
+    messages.success(request, "Reservation Updated")
+    return redirect(reverse("reservations:detail", kwargs={"pk": reservation.pk}))
