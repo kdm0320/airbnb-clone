@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-20 00:07+0900\n"
+"POT-Creation-Date: 2021-09-21 16:50+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,10 +22,55 @@ msgstr ""
 msgid "Search by City"
 msgstr "도시를 검색하세요"
 
-#: .\templates\partials\footer.html:5
+#: .\templates\partials\footer.html:6
 msgid "Please don't copy us"
 msgstr "복사 금지"
 
-#: .\templates\partials\footer.html:8
+#: .\templates\partials\footer.html:9
 msgid "All right reserved."
 msgstr "모든 권리 보유"
+
+#: .\templates\rooms\room_list.html:27
+#, python-format
+msgid "Page %(current_page)s of %(total_page)s"
+msgstr "%(total_page)s 페이지 중 %(current_page)s 페이지 "
+
+#: .\users\models.py:20
+msgid "Male"
+msgstr "남성"
+
+#: .\users\models.py:21
+msgid "Female"
+msgstr "여성"
+
+#: .\users\models.py:22
+msgid "Other"
+msgstr "기타"
+
+#: .\users\models.py:28
+msgid "English"
+msgstr "영어"
+
+#: .\users\models.py:29
+msgid "Korean"
+msgstr "한국어"
+
+#: .\users\models.py:51
+msgid "gender"
+msgstr "성별"
+
+#: .\users\models.py:53
+msgid "bio"
+msgstr "소개"
+
+#: .\users\models.py:54
+msgid "birthday"
+msgstr "생일"
+
+#: .\users\models.py:56
+msgid "language"
+msgstr "언어"
+
+#: .\users\models.py:83
+msgid "Verify Airbnb Account"
+msgstr "에어비앤비 계정 확인"

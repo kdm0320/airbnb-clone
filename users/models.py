@@ -1,4 +1,5 @@
 import uuid
+from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.mail import send_mail
@@ -6,8 +7,6 @@ from django.conf import settings
 from django.urls.base import reverse
 from django.utils.html import strip_tags
 from django.template.loader import render_to_string
-
-# from django.db.models.fields import DateField
 
 
 class User(AbstractUser):
@@ -18,16 +17,16 @@ class User(AbstractUser):
     GENDER_OTHER = "other"
 
     GENDER_CHOICES = (
-        (GENDER_MALE, "Male"),
-        (GENDER_FEMALE, "Female"),
-        (GENDER_OTHER, "Other"),
+        (GENDER_MALE, _("Male")),
+        (GENDER_FEMALE, _("Female")),
+        (GENDER_OTHER, _("Other")),
     )
 
     LANGUAGE_ENGLISH = "english"
     LANGUAGE_KOREAN = "korean"
     LANGUAGE_CHOICES = (
-        (LANGUAGE_ENGLISH, "English"),
-        (LANGUAGE_KOREAN, "Korean"),
+        (LANGUAGE_ENGLISH, _("English")),
+        (LANGUAGE_KOREAN, _("Korean")),
     )
 
     CURRENCY_USD = "usd"
@@ -49,11 +48,12 @@ class User(AbstractUser):
 
     avatar = models.ImageField(upload_to="avatars", blank=True)
     gender = models.CharField(
-        choices=GENDER_CHOICES, max_length=10, blank=True
-    )  # single line
-    bio = models.TextField(blank=True)
-    birthday = models.DateField(null=True, blank=True)
+        _("gender"), choices=GENDER_CHOICES, max_length=10, blank=True
+    )
+    bio = models.TextField(_("bio"), blank=True)
+    birthday = models.DateField(_("birthday"), null=True, blank=True)
     language = models.CharField(
+        _("language"),
         choices=LANGUAGE_CHOICES,
         max_length=10,
     )
@@ -80,7 +80,7 @@ class User(AbstractUser):
                 "emails/verify_email.html", {"secret": secret}
             )
             send_mail(
-                "Verify Airbnb Account",
+                _("Verify Airbnb Account"),
                 strip_tags(html_message),
                 settings.EMAIL_FROM,
                 [self.email],
